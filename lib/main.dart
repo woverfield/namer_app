@@ -1,6 +1,8 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:namer_app/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:namer_app/screens/profile_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: WelcomeScreen(),
       ),
     );
   }
@@ -59,29 +61,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+  var selectedIndex = 1;
 
   @override
   Widget build(BuildContext context) {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
-        break;
+        page = ProfileScreen();
       case 1:
+        page = GeneratorPage();
+      case 2:
         page = FavoritesPage();
-        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
+        extendBodyBehindAppBar: true,
         body: Row(
           children: [
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
                 destinations: [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.account_circle),
+                    label: Text('Profile')
+                    ),
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
