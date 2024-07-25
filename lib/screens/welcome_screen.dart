@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:namer_app/main.dart';
+import 'package:namer_app/screens/signup_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -31,6 +32,7 @@ class WelcomeScreen extends StatelessWidget {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -73,19 +75,25 @@ class WelcomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
+                  children: [ 
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
-                        child: Text('Sign Up'),
+                        onPressed: () {navigateToHomePage();},
+                        child: Text('Sign In'),
                       ),
                     ),
                     SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {navigateToHomePage();},
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => SignupScreen(),
+                          );
+                        },
                         style: darkButtonStyle,
-                        child: Text('Sign In'),
+                        child: Text('Sign Up'),
                       ),
                     ),
                   ],
