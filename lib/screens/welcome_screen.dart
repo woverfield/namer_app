@@ -23,15 +23,6 @@ class WelcomeScreen extends StatelessWidget {
         backgroundColor: WidgetStatePropertyAll(theme.colorScheme.primary),
         foregroundColor: WidgetStatePropertyAll(theme.colorScheme.onPrimary));
 
-    void navigateToHomePage() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                MyHomePage()),
-      );
-    }
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
@@ -83,6 +74,7 @@ class WelcomeScreen extends StatelessWidget {
                           showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,
+                            showDragHandle: true,
                             builder: (context) => SigninScreen(),
                           );
                         },
@@ -96,6 +88,7 @@ class WelcomeScreen extends StatelessWidget {
                           showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,
+                            showDragHandle: true,
                             builder: (context) => SignupScreen(),
                           );
                         },
