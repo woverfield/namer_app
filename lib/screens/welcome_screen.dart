@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:namer_app/main.dart';
+import 'package:namer_app/screens/signin_screen.dart';
 import 'package:namer_app/screens/signup_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -57,7 +58,7 @@ class WelcomeScreen extends StatelessWidget {
                       size: 200,
                     ),
                     Text(
-                      "Welcome Back!",
+                      "Welcome!",
                       style: headingStyle,
                     ),
                     Padding(
@@ -78,7 +79,13 @@ class WelcomeScreen extends StatelessWidget {
                   children: [ 
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {navigateToHomePage();},
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => SigninScreen(),
+                          );
+                        },
                         child: Text('Sign In'),
                       ),
                     ),
