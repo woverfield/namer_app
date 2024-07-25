@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:namer_app/screens/signin_screen.dart';
+import 'package:namer_app/main.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -21,14 +21,14 @@ class WelcomeScreen extends StatelessWidget {
         backgroundColor: WidgetStatePropertyAll(theme.colorScheme.primary),
         foregroundColor: WidgetStatePropertyAll(theme.colorScheme.onPrimary));
 
-    // void navigateToHomePage() {
-    //   Navigator.push(
-    //     context,
-    //     MaterialPageRoute(
-    //         builder: (context) =>
-    //             MyHomePage()),
-    //   );
-    // }
+    void navigateToHomePage() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                MyHomePage()),
+      );
+    }
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -76,22 +76,16 @@ class WelcomeScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SigninScreen()),
-                          );
-                        },
-                        child: Text('Sign In'),
+                        onPressed: () {},
+                        child: Text('Sign Up'),
                       ),
                     ),
                     SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {navigateToHomePage();},
                         style: darkButtonStyle,
-                        child: Text('Sign Up'),
+                        child: Text('Sign In'),
                       ),
                     ),
                   ],
