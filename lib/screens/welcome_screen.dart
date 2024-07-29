@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:namer_app/main.dart';
 import 'package:namer_app/screens/signin_screen.dart';
 import 'package:namer_app/screens/signup_screen.dart';
 
