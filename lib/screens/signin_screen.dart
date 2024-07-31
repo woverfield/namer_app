@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:namer_app/main.dart';
 
@@ -12,13 +13,11 @@ class _SigninScreenState extends State<SigninScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController _emailController = TextEditingController();
-  TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
-    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -28,6 +27,29 @@ class _SigninScreenState extends State<SigninScreen> {
       context,
       MaterialPageRoute(builder: (context) => MyHomePage()),
     );
+  }
+
+  void signIn() async {
+    // showDialog(
+    //   context: context,
+    //   builder: (context) {
+    //     return Center(
+    //       child: CircularProgressIndicator(),
+    //     );
+    //   },
+    // );
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    }
+    // Navigator.pop(context);
   }
 
   @override
@@ -60,14 +82,14 @@ class _SigninScreenState extends State<SigninScreen> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
-                  controller: _usernameController,
+                  controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'Username',
+                    labelText: 'Email',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a username';
+                      return 'Please enter a email';
                     }
                     return null;
                   },
@@ -94,8 +116,7 @@ class _SigninScreenState extends State<SigninScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
                   onPressed: () => {
-                    if (_formKey.currentState!.validate())
-                      {navigateToHomePage()}
+                    if (_formKey.currentState!.validate()) {signIn()}
                   },
                   child: Text('Sign In'),
                 ),
