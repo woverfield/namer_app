@@ -13,14 +13,14 @@ class _SignupScreenState extends State<SignupScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController _emailController = TextEditingController();
-  TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmpasswordcontroller = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
-    _usernameController.dispose();
     _passwordController.dispose();
+    _confirmpasswordcontroller.dispose();
     super.dispose();
   }
 
@@ -33,10 +33,35 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void signUp() async {
     try {
-      final credentials = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-              email: _emailController.text, password: _passwordController.text);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      if (_passwordController.text == _confirmpasswordcontroller.text) {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _emailController.text, password: _passwordController.text);
+        Navigator.pop(context);
+        Navigator.pop(context);
+      } else {
+        Navigator.pop(context);
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                title: Center(
+                  child: Text('Account not found'),
+                ),
+              );
+            });
+      }
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
@@ -97,22 +122,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TextFormField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Password',
@@ -129,10 +138,27 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
+                  child: TextFormField(
+                    controller: _confirmpasswordcontroller,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm password';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton(
                     onPressed: () => {
                       if (_formKey.currentState!.validate())
-                        {navigateToHomePage()}
+                        {signUp()}
                     },
                     child: Text('Sign Up'),
                   ),

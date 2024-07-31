@@ -30,26 +30,50 @@ class _SigninScreenState extends State<SigninScreen> {
   }
 
   void signIn() async {
-    // showDialog(
-    //   context: context,
-    //   builder: (context) {
-    //     return Center(
-    //       child: CircularProgressIndicator(),
-    //     );
-    //   },
-    // );
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text, password: _passwordController.text);
+      Navigator.pop(context);
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                title: Center(
+                  child: Text(
+                    'Account not found'
+                  ),
+                ),
+              );
+            });
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                title: Center(
+                  child: Text(
+                    'Wrong password'
+                  ),
+                ),
+              );
+            });
       }
     }
-    // Navigator.pop(context);
   }
 
   @override
