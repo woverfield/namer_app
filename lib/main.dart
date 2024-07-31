@@ -3,8 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:namer_app/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:namer_app/screens/profile_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -121,8 +127,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

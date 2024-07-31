@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:namer_app/main.dart';
 
 class SigninScreen extends StatefulWidget {
-  const SigninScreen({Key? key}) : super(key: key);
+  const SigninScreen({super.key});
 
   @override
   _SigninScreenState createState() => _SigninScreenState();

@@ -3,7 +3,7 @@ import 'package:namer_app/screens/signin_screen.dart';
 import 'package:namer_app/screens/signup_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:namer_app/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  const SignupScreen({super.key});
 
   @override
   _SignupScreenState createState() => _SignupScreenState();
@@ -28,6 +29,10 @@ class _SignupScreenState extends State<SignupScreen> {
       context,
       MaterialPageRoute(builder: (context) => MyHomePage()),
     );
+  }
+
+  void signUp() async {
+    final credentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
   }
 
   @override
