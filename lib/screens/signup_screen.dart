@@ -51,6 +51,7 @@ class _SignupScreenState extends State<SignupScreen> {
         if (!userDoc.exists) {
           await userDocRef.set({
             'words': [],
+            'email': _emailController.text,
           });
         }
 

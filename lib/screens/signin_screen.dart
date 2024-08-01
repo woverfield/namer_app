@@ -47,6 +47,7 @@ class _SigninScreenState extends State<SigninScreen> {
       if (!userDoc.exists) {
         await userDocRef.set({
           'words': [],
+          'email': _emailController.text,
         });
       }
 

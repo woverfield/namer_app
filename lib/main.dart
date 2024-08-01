@@ -3,6 +3,7 @@ import 'package:english_words/english_words.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:namer_app/screens/auth_screen.dart';
+import 'package:namer_app/screens/compare_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:namer_app/screens/profile_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -238,6 +239,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
       case 2:
         page = FavoritesPage();
+      case 3:
+        page = CompareScreen();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -259,6 +262,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.people),
+                    label: Text('Compare'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -298,23 +305,30 @@ class FavoritesPage extends StatelessWidget {
       );
     }
 
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have ${favorites.length} favorites:'),
-        ),
-        for (WordPair favorite in favorites)
-          ListTile(
-            leading: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                appState.removeFavorite(favorite);
-              },
-            ),
-            title: Text(favorite.asLowerCase),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Favorites'),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      body: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text('You have ${favorites.length} favorites:'),
           ),
-      ],
+          for (WordPair favorite in favorites)
+            ListTile(
+              leading: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  appState.removeFavorite(favorite);
+                },
+              ),
+              title: Text(favorite.asLowerCase),
+            ),
+        ],
+      ),
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
 }
