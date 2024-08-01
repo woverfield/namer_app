@@ -1,8 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_words/english_words.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:namer_app/screens/auth_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:namer_app/screens/profile_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -19,7 +29,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: AuthScreen(),
       ),
     );
   }
@@ -38,16 +48,132 @@ class MyAppState extends ChangeNotifier {
   void toggleFavorite() {
     if (favorites.contains(current)) {
       favorites.remove(current);
+      removeFavoriteFirebase(current);
     } else {
       favorites.add(current);
+      addFavoriteFirebase(current);
     }
     notifyListeners();
   }
 
-  void removeFavorite(favoriteName) {
+  void addFavoriteFirebase(WordPair word) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(uid);
+
+    try {
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        List<dynamic> words = userDoc['words'] ?? [];
+
+        List<Map<String, dynamic>> wordsList = words.map((item) {
+          if (item is Map<String, dynamic>) {
+            return item;
+          }
+          return <String, dynamic>{};
+        }).toList();
+
+        Map<String, dynamic> newWordMap = {
+          'first': word.first,
+          'second': word.second,
+        };
+
+        bool wordExists = wordsList.any((item) {
+          return item['first'] == newWordMap['first'] &&
+              item['second'] == newWordMap['second'];
+        });
+
+        if (wordExists) {
+          wordsList.removeWhere((item) =>
+              item['first'] == newWordMap['first'] &&
+              item['second'] == newWordMap['second']);
+        } else {
+          wordsList.add(newWordMap);
+        }
+
+        await userDocRef.update({
+          'words': wordsList,
+        });
+      } else {
+        await userDocRef.set({
+          'words': [
+            {
+              'first': word.first,
+              'second': word.second,
+            }
+          ],
+        });
+      }
+    } catch (e) {
+      print('Error updating favorites: $e');
+    }
+  }
+
+  void removeFavoriteFirebase(WordPair word) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(uid);
+
+    try {
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        List<dynamic> words = userDoc['words'] ?? [];
+
+        List<Map<String, dynamic>> wordsList = words.map((item) {
+          if (item is Map<String, dynamic>) {
+            return item;
+          }
+          return <String, dynamic>{};
+        }).toList();
+
+        Map<String, dynamic> wordToRemove = {
+          'first': word.first,
+          'second': word.second,
+        };
+
+        wordsList.removeWhere((item) =>
+            item['first'] == wordToRemove['first'] &&
+            item['second'] == wordToRemove['second']);
+
+        await userDocRef.update({
+          'words': wordsList,
+        });
+      }
+    } catch (e) {
+      print('Error removing favorite: $e');
+    }
+  }
+
+  void updateFavorites(List<dynamic> words) {
+    favorites = words.map((item) {
+      if (item is Map<String, dynamic>) {
+        final first = item['first'] as String?;
+        final second = item['second'] as String?;
+
+        if (first != null && second != null) {
+          return WordPair(first, second);
+        } else {
+          print('Invalid item format: $item');
+          throw FormatException('Invalid format: $item');
+        }
+      } else {
+        print('Item is not a Map<String, dynamic>: $item');
+        throw FormatException('Item is not a Map<String, dynamic>: $item');
+      }
+    }).toSet();
+
+    notifyListeners();
+  }
+
+  void removeFavorite(favorite) {
     print('remove favorite called');
-    if (favorites.contains(favoriteName)) {
-      favorites.remove(favoriteName);
+    if (favorites.contains(favorite)) {
+      favorites.remove(favorite);
+      removeFavoriteFirebase(favorite);
       notifyListeners();
     }
   }
@@ -59,29 +185,73 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+  var selectedIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    setupFirestore();
+  }
+
+  Future<void> setupFirestore() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      DocumentReference userDocRef =
+          FirebaseFirestore.instance.collection('users').doc(uid);
+
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (!userDoc.exists) {
+        await userDocRef.set({
+          'words': [],
+        });
+      } else {
+        List<dynamic> firestoreWordsDynamic = userDoc['words'];
+
+        context.read<MyAppState>().updateFavorites(firestoreWordsDynamic);
+      }
+    } catch (e) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              title: Center(
+                child: Text('Unexpected Error: $e'),
+              ),
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    User currUser = FirebaseAuth.instance.currentUser!;
     Widget page;
+
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
-        break;
+        page = ProfileScreen(
+          user: currUser,
+        );
       case 1:
+        page = GeneratorPage();
+      case 2:
         page = FavoritesPage();
-        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
+        extendBodyBehindAppBar: true,
         body: Row(
           children: [
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
                 destinations: [
+                  NavigationRailDestination(
+                      icon: Icon(Icons.account_circle), label: Text('Profile')),
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
@@ -114,8 +284,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

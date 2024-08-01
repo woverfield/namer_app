@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207313310581",
+    "project_id": "namer-app-cded9",
+    "storage_bucket": "namer-app-cded9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207313310581:android:7ba7bc7eb129a4c074b93c",
+        "android_client_info": {
+          "package_name": "com.namer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC0qOpMPk7L0QM9yX9EG_fZA0nQFtTXmc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
