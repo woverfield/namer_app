@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_words/english_words.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,27 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFavorites(List<dynamic> words) {
+    favorites = words.map((item) {
+      if (item is Map<String, dynamic>) {
+        final first = item['first'] as String?;
+        final second = item['second'] as String?;
+
+        if (first != null && second != null) {
+          return WordPair(first, second);
+        } else {
+          print('Invalid item format: $item');
+          throw FormatException('Invalid format: $item');
+        }
+      } else {
+        print('Item is not a Map<String, dynamic>: $item');
+        throw FormatException('Item is not a Map<String, dynamic>: $item');
+      }
+    }).toSet();
+
+    notifyListeners();
+  }
+
   void removeFavorite(favoriteName) {
     print('remove favorite called');
     if (favorites.contains(favoriteName)) {
@@ -69,14 +91,54 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 1;
-  User currUser = FirebaseAuth.instance.currentUser!;
+
+  @override
+  void initState() {
+    super.initState();
+    setupFirestore();
+  }
+
+  Future<void> setupFirestore() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      DocumentReference userDocRef =
+          FirebaseFirestore.instance.collection('users').doc(uid);
+
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (!userDoc.exists) {
+        await userDocRef.set({
+          'words': [],
+        });
+      } else {
+        List<dynamic> firestoreWordsDynamic = userDoc['words'];
+
+        context.read<MyAppState>().updateFavorites(firestoreWordsDynamic);
+      }
+    } catch (e) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              title: Center(
+                child: Text('Unexpected Error: $e'),
+              ),
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    User currUser = FirebaseAuth.instance.currentUser!;
     Widget page;
+
     switch (selectedIndex) {
       case 0:
-        page = ProfileScreen(user: currUser,);
+        page = ProfileScreen(
+          user: currUser,
+        );
       case 1:
         page = GeneratorPage();
       case 2:
@@ -94,9 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 extended: constraints.maxWidth >= 600,
                 destinations: [
                   NavigationRailDestination(
-                    icon: Icon(Icons.account_circle),
-                    label: Text('Profile')
-                    ),
+                      icon: Icon(Icons.account_circle), label: Text('Profile')),
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),

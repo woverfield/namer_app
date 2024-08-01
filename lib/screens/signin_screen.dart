@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:namer_app/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -55,32 +54,17 @@ class _SigninScreenState extends State<SigninScreen> {
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      if (e.code == 'user-not-found') {
-        showDialog(
+      showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
                 backgroundColor: Theme.of(context).colorScheme.error,
                 title: Center(
-                  child: Text('Account not found'),
+                  child: Text('${e.code}: $e'),
                 ),
               );
             });
-      } else if (e.code == 'wrong-password') {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                title: Center(
-                  child: Text('Wrong password'),
-                ),
-              );
-            });
-      }
     } catch (e) {
-      Navigator.pop(context);
-      print('General Exception: $e');
       showDialog(
         context: context,
         builder: (context) {
