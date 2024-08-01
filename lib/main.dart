@@ -1,7 +1,7 @@
 import 'package:english_words/english_words.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:namer_app/screens/auth_screen.dart';
-import 'package:namer_app/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:namer_app/screens/profile_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -69,13 +69,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 1;
+  User currUser = FirebaseAuth.instance.currentUser!;
 
   @override
   Widget build(BuildContext context) {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = ProfileScreen();
+        page = ProfileScreen(user: currUser,);
       case 1:
         page = GeneratorPage();
       case 2:

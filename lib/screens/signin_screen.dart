@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:namer_app/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -22,13 +23,6 @@ class _SigninScreenState extends State<SigninScreen> {
     super.dispose();
   }
 
-  void navigateToHomePage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MyHomePage()),
-    );
-  }
-
   void signIn() async {
     showDialog(
       context: context,
@@ -40,8 +34,24 @@ class _SigninScreenState extends State<SigninScreen> {
     );
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text, password: _passwordController.text);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _emailController.text, password: _passwordController.text);
+
+      String uid = userCredential.user!.uid;
+
+      DocumentReference userDocRef =
+          FirebaseFirestore.instance.collection('users').doc(uid);
+
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (!userDoc.exists) {
+        await userDocRef.set({
+          'words': [],
+        });
+      }
+
+      Navigator.pop(context);
       Navigator.pop(context);
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
@@ -53,9 +63,7 @@ class _SigninScreenState extends State<SigninScreen> {
               return AlertDialog(
                 backgroundColor: Theme.of(context).colorScheme.error,
                 title: Center(
-                  child: Text(
-                    'Account not found'
-                  ),
+                  child: Text('Account not found'),
                 ),
               );
             });
@@ -66,13 +74,25 @@ class _SigninScreenState extends State<SigninScreen> {
               return AlertDialog(
                 backgroundColor: Theme.of(context).colorScheme.error,
                 title: Center(
-                  child: Text(
-                    'Wrong password'
-                  ),
+                  child: Text('Wrong password'),
                 ),
               );
             });
       }
+    } catch (e) {
+      Navigator.pop(context);
+      print('General Exception: $e');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.error,
+            title: Center(
+              child: Text('An unexpected error occurred: $e'),
+            ),
+          );
+        },
+      );
     }
   }
 
