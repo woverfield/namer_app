@@ -53,7 +53,6 @@ class _SigninScreenState extends State<SigninScreen> {
 
       Navigator.pop(context);
       Navigator.pop(context);
-      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       if (e.code == 'user-not-found') {
