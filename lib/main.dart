@@ -48,10 +48,104 @@ class MyAppState extends ChangeNotifier {
   void toggleFavorite() {
     if (favorites.contains(current)) {
       favorites.remove(current);
+      removeFavoriteFirebase(current);
     } else {
       favorites.add(current);
+      addFavoriteFirebase(current);
     }
     notifyListeners();
+  }
+
+  void addFavoriteFirebase(WordPair word) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(uid);
+
+    try {
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        List<dynamic> words = userDoc['words'] ?? [];
+
+        List<Map<String, dynamic>> wordsList = words.map((item) {
+          if (item is Map<String, dynamic>) {
+            return item;
+          }
+          return <String, dynamic>{};
+        }).toList();
+
+        Map<String, dynamic> newWordMap = {
+          'first': word.first,
+          'second': word.second,
+        };
+
+        bool wordExists = wordsList.any((item) {
+          return item['first'] == newWordMap['first'] &&
+              item['second'] == newWordMap['second'];
+        });
+
+        if (wordExists) {
+          wordsList.removeWhere((item) =>
+              item['first'] == newWordMap['first'] &&
+              item['second'] == newWordMap['second']);
+        } else {
+          wordsList.add(newWordMap);
+        }
+
+        await userDocRef.update({
+          'words': wordsList,
+        });
+      } else {
+        await userDocRef.set({
+          'words': [
+            {
+              'first': word.first,
+              'second': word.second,
+            }
+          ],
+        });
+      }
+    } catch (e) {
+      print('Error updating favorites: $e');
+    }
+  }
+
+  void removeFavoriteFirebase(WordPair word) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(uid);
+
+    try {
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        List<dynamic> words = userDoc['words'] ?? [];
+
+        List<Map<String, dynamic>> wordsList = words.map((item) {
+          if (item is Map<String, dynamic>) {
+            return item;
+          }
+          return <String, dynamic>{};
+        }).toList();
+
+        Map<String, dynamic> wordToRemove = {
+          'first': word.first,
+          'second': word.second,
+        };
+
+        wordsList.removeWhere((item) =>
+            item['first'] == wordToRemove['first'] &&
+            item['second'] == wordToRemove['second']);
+
+        await userDocRef.update({
+          'words': wordsList,
+        });
+      }
+    } catch (e) {
+      print('Error removing favorite: $e');
+    }
   }
 
   void updateFavorites(List<dynamic> words) {
@@ -75,10 +169,11 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeFavorite(favoriteName) {
+  void removeFavorite(favorite) {
     print('remove favorite called');
-    if (favorites.contains(favoriteName)) {
-      favorites.remove(favoriteName);
+    if (favorites.contains(favorite)) {
+      favorites.remove(favorite);
+      removeFavoriteFirebase(favorite);
       notifyListeners();
     }
   }
