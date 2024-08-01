@@ -181,8 +181,12 @@ class MyAppState extends ChangeNotifier {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.email});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
+
+  final String email;
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -191,10 +195,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    setupFirestore();
+    setupFirestore(widget.email);
   }
-
-  Future<void> setupFirestore() async {
+  
+  Future<void> setupFirestore(String email) async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       DocumentReference userDocRef =
@@ -205,6 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (!userDoc.exists) {
         await userDocRef.set({
           'words': [],
+          'email': email,
         });
       } else {
         List<dynamic> firestoreWordsDynamic = userDoc['words'];
