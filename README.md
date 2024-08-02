@@ -20,7 +20,7 @@ namer_app is a Flutter application designed to generate cool-sounding names like
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/namer_app.git
+   git clone https://github.com/woverfield/namer_app.git
    cd namer_app
    ```
 
