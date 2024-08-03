@@ -61,3 +61,10 @@ We welcome contributions to namer_app! To get started:
 
 - [Flutter](https://flutter.dev/)
 - [Firebase](https://firebase.google.com/)
+
+## Screenshots
+![namerGeneratorScreen](https://github.com/user-attachments/assets/f8fad17d-127e-471f-a63f-5b4ed480a473)
+
+![namerFavoritesScreen](https://github.com/user-attachments/assets/932531b4-6f04-4025-9929-a4791da5c483)
+
+![namerCompareScreen](https://github.com/user-attachments/assets/00d18e67-72c7-490e-93c3-39bf82d51b73)
